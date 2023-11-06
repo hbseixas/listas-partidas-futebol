@@ -8,7 +8,8 @@ Requisitos:
 - SpringBoot
 - Persistir os dados em um banco de dados relacional (MySQL, Postgres, SQLite, H2, HSQLDB, etc.)
 
-![Spring Initializr](https://github.com/hbseixas/listas-partidas-futebol/assets/148393725/62b7502a-7a18-4cbc-a2d3-64846d152e81)
+
+![Spring Initializr](https://github.com/hbseixas/listas-partidas-futebol/assets/148393725/f40c2e09-508d-4199-8dc9-e23cabbf3a6e)
 
 
 Operações básicas:
