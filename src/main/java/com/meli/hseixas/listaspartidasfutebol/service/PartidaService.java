@@ -53,6 +53,22 @@ public class PartidaService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
+    public List<PartidaDto> listarZeroGols() {
+        List<Partida> todasAsPartidas = partidaRepository.findAll();
+        List<Partida> zeroGols = new ArrayList<>();
+        if (!todasAsPartidas.isEmpty()) {
+            for (Partida partida : todasAsPartidas){
+                if (partida.getPlacarMandante() == 0 && partida.getPlacarVisitante() == 0){
+                    zeroGols.add(partida);
+                }
+            }
+            return zeroGols.stream()
+                    .map(this::converterParaDto)
+                    .toList();
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
     public PartidaDto cadastrarPartida(PartidaDto partidaDto) {
         Partida partida = converterParaEntity(partidaDto, new Partida());
         partidaRepository.save(partida);

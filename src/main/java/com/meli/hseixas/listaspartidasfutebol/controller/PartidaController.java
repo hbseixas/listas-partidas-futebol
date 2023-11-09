@@ -35,6 +35,12 @@ public class PartidaController {
         return ResponseEntity.ok(goleadas);
     }
 
+    @GetMapping("/zerogols")
+    public ResponseEntity<List<PartidaDto>> listarZeroGols(){
+        var zeroGols = partidaService.listarZeroGols();
+        return ResponseEntity.ok(zeroGols);
+    }
+
     @PostMapping
     public ResponseEntity<PartidaDto> cadastrarPartida(@RequestBody PartidaDto partidaDto) {
         var partidaCadastrada = partidaService.cadastrarPartida(partidaDto);
