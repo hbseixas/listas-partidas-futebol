@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,22 @@ public class PartidaService {
         if (partidaOptional.isPresent()) {
             Partida partida = partidaOptional.get();
             return converterParaDto(partida);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    public List<PartidaDto> listarGoleadas() {
+        List<Partida> todasAsPartidas = partidaRepository.findAll();
+        List<Partida> goleadas = new ArrayList<>();
+        if (!todasAsPartidas.isEmpty()) {
+            for (Partida partida : todasAsPartidas){
+                if (Math.abs(partida.getPlacarMandante() - partida.getPlacarVisitante()) >= 3){
+                    goleadas.add(partida);
+                }
+            }
+            return goleadas.stream()
+                    .map(this::converterParaDto)
+                    .toList();
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
