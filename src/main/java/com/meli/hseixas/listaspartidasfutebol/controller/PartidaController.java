@@ -41,6 +41,12 @@ public class PartidaController {
         return ResponseEntity.ok(zeroGols);
     }
 
+    @GetMapping("/estadio/{nomeEstadio}")
+    public ResponseEntity<List<PartidaDto>> listarEstadio(@PathVariable String nomeEstadio){
+        var estadio = partidaService.listarEstadio(nomeEstadio);
+        return ResponseEntity.ok(estadio);
+    }
+
     @PostMapping
     public ResponseEntity<PartidaDto> cadastrarPartida(@RequestBody PartidaDto partidaDto) {
         var partidaCadastrada = partidaService.cadastrarPartida(partidaDto);

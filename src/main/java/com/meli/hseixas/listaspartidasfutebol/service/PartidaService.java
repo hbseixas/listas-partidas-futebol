@@ -69,6 +69,16 @@ public class PartidaService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
+    public List<PartidaDto> listarEstadio(String nomeEstadio) {
+        List<Partida> todasAsPartidas = partidaRepository.findAllByNomeEstadioEqualsIgnoreCase(nomeEstadio);
+        if (!todasAsPartidas.isEmpty()) {
+            return todasAsPartidas.stream()
+                    .map(this::converterParaDto)
+                    .toList();
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
     public PartidaDto cadastrarPartida(PartidaDto partidaDto) {
         Partida partida = converterParaEntity(partidaDto, new Partida());
         partidaRepository.save(partida);
