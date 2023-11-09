@@ -29,6 +29,12 @@ public class PartidaController {
         return ResponseEntity.ok(partidaPorId);
     }
 
+    @GetMapping("/goleadas")
+    public ResponseEntity<List<PartidaDto>> listarGoleadas(){
+        var goleadas = partidaService.listarGoleadas();
+        return ResponseEntity.ok(goleadas);
+    }
+
     @PostMapping
     public ResponseEntity<PartidaDto> cadastrarPartida(@RequestBody PartidaDto partidaDto) {
         var partidaCadastrada = partidaService.cadastrarPartida(partidaDto);
