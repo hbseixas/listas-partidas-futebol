@@ -4,11 +4,10 @@ import com.meli.hseixas.listaspartidasfutebol.dto.PartidaDto;
 import com.meli.hseixas.listaspartidasfutebol.model.Partida;
 import com.meli.hseixas.listaspartidasfutebol.service.PartidaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -31,15 +30,14 @@ public class PartidaController {
     }
 
     @PostMapping
-    public ResponseEntity<PartidaDto> cadastrarPartida(@RequestBody Partida partida, UriComponentsBuilder uriBuilder) {
-        var partidaCadastrada = partidaService.cadastrarPartida(partida);
-        URI uri = uriBuilder.path("/partidas/{id}").buildAndExpand(partidaCadastrada.getId()).toUri();
-        return ResponseEntity.created(uri).body(partidaCadastrada);
+    public ResponseEntity<PartidaDto> cadastrarPartida(@RequestBody PartidaDto partidaDto) {
+        var partidaCadastrada = partidaService.cadastrarPartida(partidaDto);
+        return new ResponseEntity<>(partidaCadastrada, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PartidaDto> alterarPartida(@PathVariable Long id, @RequestBody Partida partida) {
-        var partidaAlterada = partidaService.alterarPartida(id, partida);
+    public ResponseEntity<PartidaDto> alterarPartida(@PathVariable Long id, @RequestBody PartidaDto partidaDto) {
+        var partidaAlterada = partidaService.alterarPartida(id, partidaDto);
         return ResponseEntity.ok(partidaAlterada);
     }
 
