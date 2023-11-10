@@ -3,6 +3,7 @@ package com.meli.hseixas.listaspartidasfutebol.controller;
 import com.meli.hseixas.listaspartidasfutebol.dto.PartidaDto;
 import com.meli.hseixas.listaspartidasfutebol.model.Partida;
 import com.meli.hseixas.listaspartidasfutebol.service.PartidaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,13 +55,13 @@ public class PartidaController {
     }
 
     @PostMapping
-    public ResponseEntity<PartidaDto> cadastrarPartida(@RequestBody PartidaDto partidaDto) {
+    public ResponseEntity<PartidaDto> cadastrarPartida(@RequestBody @Valid PartidaDto partidaDto) {
         var partidaCadastrada = partidaService.cadastrarPartida(partidaDto);
         return new ResponseEntity<>(partidaCadastrada, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PartidaDto> alterarPartida(@PathVariable Long id, @RequestBody PartidaDto partidaDto) {
+    public ResponseEntity<PartidaDto> alterarPartida(@PathVariable Long id, @RequestBody @Valid PartidaDto partidaDto) {
         var partidaAlterada = partidaService.alterarPartida(id, partidaDto);
         return ResponseEntity.ok(partidaAlterada);
     }
