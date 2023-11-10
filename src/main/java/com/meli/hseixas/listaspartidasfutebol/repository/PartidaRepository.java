@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface PartidaRepository extends JpaRepository<Partida, Long> {
     List<Partida> findAllByNomeEstadioEqualsIgnoreCase(String nomeEstadio);
+    List<Partida> findAllByClubeMandanteEqualsIgnoreCase(String nomeClube);
+    List<Partida> findAllByClubeVisitanteEqualsIgnoreCase(String nomeClube);
 }
