@@ -79,6 +79,31 @@ public class PartidaService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
+    public List<PartidaDto> listarClube(String nomeClube, boolean clubeMandante, boolean clubeVisitante) {
+        List<Partida> partidasMandante = partidaRepository.findAllByClubeMandanteEqualsIgnoreCase(nomeClube);
+        List<Partida> partidasVisitante = partidaRepository.findAllByClubeVisitanteEqualsIgnoreCase(nomeClube);
+        List<Partida> partidasClube = new ArrayList<>();
+
+        if (!(partidasMandante.isEmpty() && partidasVisitante.isEmpty())) {
+            if (clubeMandante && !clubeVisitante){
+                return partidasMandante.stream()
+                        .map(this::converterParaDto)
+                        .toList();
+            }
+            if (!clubeMandante && clubeVisitante){
+                return partidasVisitante.stream()
+                        .map(this::converterParaDto)
+                        .toList();
+            }
+            partidasClube.addAll(partidasMandante);
+            partidasClube.addAll(partidasVisitante);
+            return partidasClube.stream()
+                    .map(this::converterParaDto)
+                    .toList();
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
     public PartidaDto cadastrarPartida(PartidaDto partidaDto) {
         Partida partida = converterParaEntity(partidaDto, new Partida());
         partidaRepository.save(partida);
