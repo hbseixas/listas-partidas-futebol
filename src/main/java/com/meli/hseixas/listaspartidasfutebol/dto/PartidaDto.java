@@ -1,9 +1,6 @@
 package com.meli.hseixas.listaspartidasfutebol.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,6 +27,7 @@ public class PartidaDto {
     private Integer placarVisitante;
 
     @NotNull
+    @Past
     private LocalDateTime horario;
 
     @NotBlank
