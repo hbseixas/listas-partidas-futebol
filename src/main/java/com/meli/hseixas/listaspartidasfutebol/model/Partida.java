@@ -22,10 +22,10 @@ public class Partida {
     private String clubeVisitante;
 
     @Column
-    private int placarMandante;
+    private Integer placarMandante;
 
     @Column
-    private int placarVisitante;
+    private Integer placarVisitante;
 
     @Column
     private LocalDateTime horario;
