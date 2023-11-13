@@ -105,19 +105,25 @@ public class PartidaService {
     }
 
     public PartidaDto cadastrarPartida(PartidaDto partidaDto) {
-        Partida partida = converterParaEntity(partidaDto, new Partida());
-        partidaRepository.save(partida);
-        partidaDto.setId(partida.getId());
-        return partidaDto;
+        if (validarHorario(partidaDto)) {
+            Partida partida = converterParaEntity(partidaDto, new Partida());
+            partidaRepository.save(partida);
+            partidaDto.setId(partida.getId());
+            return partidaDto;
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
     public PartidaDto alterarPartida(Long id, PartidaDto partidaDto) {
         Optional<Partida> partidaOptional = partidaRepository.findById(id);
         if (partidaOptional.isPresent()) {
-            Partida partida = partidaOptional.get();
-            partidaRepository.save(converterParaEntity(partidaDto, partida));
-            partidaDto.setId(id);
-            return partidaDto;
+            if (validarHorario(partidaDto)){
+                Partida partida = partidaOptional.get();
+                partidaRepository.save(converterParaEntity(partidaDto, partida));
+                partidaDto.setId(id);
+                return partidaDto;
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -151,5 +157,9 @@ public class PartidaService {
         partida.setNomeEstadio(partidaDto.getNomeEstadio());
         partida.setHorario(partidaDto.getHorario());
         return partida;
+    }
+
+    public boolean validarHorario(PartidaDto partidaDto){
+        return partidaDto.getHorario().getHour() >= 8 && partidaDto.getHorario().getHour() < 22;
     }
 }
