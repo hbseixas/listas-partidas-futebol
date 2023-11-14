@@ -8,9 +8,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static javax.print.attribute.Size2DSyntax.MM;
 
 @Service
 public class PartidaService {
@@ -105,7 +113,7 @@ public class PartidaService {
     }
 
     public PartidaDto cadastrarPartida(PartidaDto partidaDto) {
-        if (validarHorario(partidaDto)) {
+        if (validarHorario(partidaDto) && validarEstadioPorDia(partidaDto)) {
             Partida partida = converterParaEntity(partidaDto, new Partida());
             partidaRepository.save(partida);
             partidaDto.setId(partida.getId());
@@ -117,7 +125,7 @@ public class PartidaService {
     public PartidaDto alterarPartida(Long id, PartidaDto partidaDto) {
         Optional<Partida> partidaOptional = partidaRepository.findById(id);
         if (partidaOptional.isPresent()) {
-            if (validarHorario(partidaDto)){
+            if (validarHorario(partidaDto) && validarEstadioPorDia(partidaDto)){
                 Partida partida = partidaOptional.get();
                 partidaRepository.save(converterParaEntity(partidaDto, partida));
                 partidaDto.setId(id);
@@ -161,5 +169,17 @@ public class PartidaService {
 
     public boolean validarHorario(PartidaDto partidaDto){
         return partidaDto.getHorario().getHour() >= 8 && partidaDto.getHorario().getHour() < 22;
+    }
+
+    public boolean validarEstadioPorDia(PartidaDto partidaDto) {
+        LocalDate dataPartidaDto = partidaDto.getHorario().toLocalDate();
+        List<Partida> partidasPorEstadio = partidaRepository.findAllByNomeEstadioEqualsIgnoreCase(partidaDto.getNomeEstadio());
+        for (Partida partida : partidasPorEstadio){
+            LocalDate dataPartida = partida.getHorario().toLocalDate();
+            if (dataPartida.equals(dataPartidaDto)){
+                return false;
+            }
+        }
+        return true;
     }
 }
