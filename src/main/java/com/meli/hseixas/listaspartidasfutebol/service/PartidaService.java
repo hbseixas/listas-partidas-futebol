@@ -20,6 +20,8 @@ public class PartidaService {
     @Autowired
     private PartidaRepository partidaRepository;
 
+    public static final int INTERVALO_MAXIMO_EM_SEGUNDOS = 172800;
+
     public List<PartidaDto> listarTodasAsPartidas() {
         List<Partida> todasAsPartidas = partidaRepository.findAll();
         if (!todasAsPartidas.isEmpty()) {
@@ -180,7 +182,7 @@ public class PartidaService {
     public boolean validarIntervaloDeDiasPorClube(PartidaDto partidaDto) {
         List<Partida> partidasDosClubes = obterPartidasDosClubes(partidaDto);
         for (Partida partida : partidasDosClubes) {
-            if (intervaloMenorQueDoisDias(partidaDto, partida)){
+            if (isIntervaloValidoEntrePartidas(partidaDto, partida)){
                 return false;
             }
         }
@@ -191,23 +193,21 @@ public class PartidaService {
         List<Partida> todasAsPartidas = partidaRepository.findAll();
         List<Partida> partidasDosClubes = new ArrayList<>();
         for (Partida partida : todasAsPartidas){
-            if (partidaEnvolvendoClubes(partida, partidaDto)){
+            if (isClubeEnvolvidoNaPartida(partida, partidaDto.getClubeMandante()) ||
+                    isClubeEnvolvidoNaPartida(partida,partidaDto.getClubeVisitante())){
                 partidasDosClubes.add(partida);
             }
         }
         return partidasDosClubes;
     }
 
-    private boolean partidaEnvolvendoClubes(Partida partida, PartidaDto partidaDto){
-        return partida.getClubeMandante().equalsIgnoreCase(partidaDto.getClubeMandante()) ||
-                partida.getClubeMandante().equalsIgnoreCase(partidaDto.getClubeVisitante()) ||
-                partida.getClubeVisitante().equalsIgnoreCase(partidaDto.getClubeMandante()) ||
-                partida.getClubeVisitante().equalsIgnoreCase(partidaDto.getClubeVisitante());
+    private boolean isClubeEnvolvidoNaPartida(Partida partida, String clube){
+        return partida.getClubeMandante().equalsIgnoreCase(clube) ||
+                partida.getClubeVisitante().equalsIgnoreCase(clube);
     }
 
-    private boolean intervaloMenorQueDoisDias (PartidaDto partidaDto, Partida partida){
+    private boolean isIntervaloValidoEntrePartidas(PartidaDto partidaDto, Partida partida){
         Duration intervalo = Duration.between(partidaDto.getHorario(), partida.getHorario());
-        var intervaloMaximoEmSegundos = 172800;
-        return Math.abs(intervalo.toSeconds()) >= 0 && Math.abs(intervalo.toSeconds()) <= intervaloMaximoEmSegundos;
+        return Math.abs(intervalo.toSeconds()) <= INTERVALO_MAXIMO_EM_SEGUNDOS;
     }
 }
