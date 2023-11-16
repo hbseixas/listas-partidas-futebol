@@ -8,23 +8,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import static javax.print.attribute.Size2DSyntax.MM;
 
 @Service
 public class PartidaService {
 
     @Autowired
     private PartidaRepository partidaRepository;
+
+    public static final int INTERVALO_MAXIMO_EM_SEGUNDOS = 172800;
 
     public List<PartidaDto> listarTodasAsPartidas() {
         List<Partida> todasAsPartidas = partidaRepository.findAll();
@@ -113,7 +109,7 @@ public class PartidaService {
     }
 
     public PartidaDto cadastrarPartida(PartidaDto partidaDto) {
-        if (validarHorario(partidaDto) && validarEstadioPorDia(partidaDto)) {
+        if (validarHorario(partidaDto) && validarEstadioPorDia(partidaDto) && validarIntervaloDeDiasPorClube(partidaDto)) {
             Partida partida = converterParaEntity(partidaDto, new Partida());
             partidaRepository.save(partida);
             partidaDto.setId(partida.getId());
@@ -125,7 +121,7 @@ public class PartidaService {
     public PartidaDto alterarPartida(Long id, PartidaDto partidaDto) {
         Optional<Partida> partidaOptional = partidaRepository.findById(id);
         if (partidaOptional.isPresent()) {
-            if (validarHorario(partidaDto) && validarEstadioPorDia(partidaDto)){
+            if (validarHorario(partidaDto) && validarEstadioPorDia(partidaDto) && validarIntervaloDeDiasPorClube(partidaDto)){
                 Partida partida = partidaOptional.get();
                 partidaRepository.save(converterParaEntity(partidaDto, partida));
                 partidaDto.setId(id);
@@ -181,5 +177,37 @@ public class PartidaService {
             }
         }
         return true;
+    }
+
+    public boolean validarIntervaloDeDiasPorClube(PartidaDto partidaDto) {
+        List<Partida> partidasDosClubes = obterPartidasDosClubes(partidaDto);
+        for (Partida partida : partidasDosClubes) {
+            if (isIntervaloValidoEntrePartidas(partidaDto, partida)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private List<Partida> obterPartidasDosClubes (PartidaDto partidaDto){
+        List<Partida> todasAsPartidas = partidaRepository.findAll();
+        List<Partida> partidasDosClubes = new ArrayList<>();
+        for (Partida partida : todasAsPartidas){
+            if (isClubeEnvolvidoNaPartida(partida, partidaDto.getClubeMandante()) ||
+                    isClubeEnvolvidoNaPartida(partida,partidaDto.getClubeVisitante())){
+                partidasDosClubes.add(partida);
+            }
+        }
+        return partidasDosClubes;
+    }
+
+    private boolean isClubeEnvolvidoNaPartida(Partida partida, String clube){
+        return partida.getClubeMandante().equalsIgnoreCase(clube) ||
+                partida.getClubeVisitante().equalsIgnoreCase(clube);
+    }
+
+    private boolean isIntervaloValidoEntrePartidas(PartidaDto partidaDto, Partida partida){
+        Duration intervalo = Duration.between(partidaDto.getHorario(), partida.getHorario());
+        return Math.abs(intervalo.toSeconds()) <= INTERVALO_MAXIMO_EM_SEGUNDOS;
     }
 }
