@@ -26,24 +26,17 @@ public class PartidaServiceTest {
     @Mock
     private PartidaRepository partidaRepository;
 
-
-    @Mock
-    private LocalDateTime horario;
-
     private List<Partida> partidas = new ArrayList<>();
 
     @BeforeEach
     void setUp(){
         MockitoAnnotations.openMocks(this);
-        partidas.add(new Partida(1L, "Flamengo", "Fluminense", 2, 1, horario, "Maracanã"));
-        partidas.add(new Partida(2L, "Vasco", "Botafogo", 2, 2, horario, "São Januário"));
-        partidas.add(new Partida(3L, "Santos", "Flamengo", 0, 2, horario, "Vila Belmiro"));
     }
 
 //    TESTES DO MÉTODO listarTodasAsPartidas()
-
     @Test
     void testListarTodasAsPartidas_QuandoExistemPartidas() {
+        addPartidas();
         when(partidaRepository.findAll()).thenReturn(partidas);
 
         List<PartidaDto> partidasDto = partidaService.listarTodasAsPartidas();
@@ -54,15 +47,15 @@ public class PartidaServiceTest {
 
     @Test
     void testListarTodasAsPartidas_QuandoNaoExistemPartidas() {
-        when(partidaRepository.findAll()).thenReturn(new ArrayList<>());
+        when(partidaRepository.findAll()).thenReturn(partidas);
 
         assertThrows(ResponseStatusException.class, () -> partidaService.listarTodasAsPartidas());
     }
 
 //    TESTES DO MÉTODO listarPartidaPorId()
-
     @Test
     void testListarPartidaPorId_QuandoExistePartida() {
+        addPartidas();
         Partida partidaEsperada = partidas.get(0);
 
         when(partidaRepository.findById(partidaEsperada.getId())).thenReturn(Optional.of(partidaEsperada));
@@ -83,11 +76,11 @@ public class PartidaServiceTest {
     }
 
 //    TESTES DO MÉTODO listarGoleadas()
-
     @Test
     void testListarGoleadas_QuandoExistemGoleadas() {
-        partidas.add(new Partida(4L, "Barra Mansa", "Bangu", 4, 1, horario, "Leão do Sul"));
-        partidas.add(new Partida(5L, "Volta Redonda", "Madureira", 3, 0, horario, "Raulino de Oliveira"));
+        addPartidas();
+        partidas.add(new Partida(4L, "Barra Mansa", "Bangu", 4, 1, LocalDateTime.of(2022, 10, 12, 20, 30, 00), "Leão do Sul"));
+        partidas.add(new Partida(5L, "Volta Redonda", "Madureira", 3, 0, LocalDateTime.of(2022, 10, 12, 20, 30, 00), "Raulino de Oliveira"));
 
         when(partidaRepository.findAll()).thenReturn(partidas);
 
@@ -101,6 +94,7 @@ public class PartidaServiceTest {
 
     @Test
     void testListarGoleadas_QuandoNaoExistemGoleadas() {
+        addPartidas();
         when(partidaRepository.findAll()).thenReturn(partidas);
 
         List<PartidaDto> goleadas = partidaService.listarGoleadas();
@@ -110,17 +104,17 @@ public class PartidaServiceTest {
 
     @Test
     void testListarGoleadas_QuandoNaoExistemPartidas() {
-        when(partidaRepository.findAll()).thenReturn(new ArrayList<>());
+        when(partidaRepository.findAll()).thenReturn(partidas);
 
         assertThrows(ResponseStatusException.class, () -> partidaService.listarGoleadas());
     }
 
 //    TESTES DO MÉTODO listarZeroGols()
-
     @Test
     void testListarZeroGols_QuandoExistemZeroGols() {
-        partidas.add(new Partida(4L, "Barra Mansa", "Bangu", 0, 0, horario, "Leão do Sul"));
-        partidas.add(new Partida(5L, "Volta Redonda", "Madureira", 0, 0, horario, "Raulino de Oliveira"));
+        addPartidas();
+        partidas.add(new Partida(4L, "Barra Mansa", "Bangu", 0, 0, LocalDateTime.of(2022, 10, 12, 20, 30, 00), "Leão do Sul"));
+        partidas.add(new Partida(5L, "Volta Redonda", "Madureira", 0, 0, LocalDateTime.of(2022, 10, 12, 20, 30, 00), "Raulino de Oliveira"));
 
         when(partidaRepository.findAll()).thenReturn(partidas);
 
@@ -134,6 +128,7 @@ public class PartidaServiceTest {
 
     @Test
     void testListarZeroGols_QuandoNaoExistemZeroGols() {
+        addPartidas();
         when(partidaRepository.findAll()).thenReturn(partidas);
 
         List<PartidaDto> goleadas = partidaService.listarZeroGols();
@@ -143,15 +138,15 @@ public class PartidaServiceTest {
 
     @Test
     void testListarZeroGols_QuandoNaoExistemPartidas() {
-        when(partidaRepository.findAll()).thenReturn(new ArrayList<>());
+        when(partidaRepository.findAll()).thenReturn(partidas);
 
         assertThrows(ResponseStatusException.class, () -> partidaService.listarZeroGols());
     }
 
 //    TESTES DO MÉTODO listarEstadio(String nomeEstadio)
-
     @Test
     void testListarEstadio_QuandoExistemPartidasPorEstadio() {
+        addPartidas();
         String nomeEstadio = "Maracanã";
 
         List<Partida> partidasPorEstadio = partidas.stream()
@@ -170,15 +165,15 @@ public class PartidaServiceTest {
     void testListarEstadio_QuandoNaoExistemPartidasPorEstadio() {
         String nomeEstadio = "Estádio Inexistente";
 
-        when(partidaRepository.findAllByNomeEstadioEqualsIgnoreCase(nomeEstadio)).thenReturn(new ArrayList<>());
+        when(partidaRepository.findAllByNomeEstadioEqualsIgnoreCase(nomeEstadio)).thenReturn(partidas);
 
         assertThrows(ResponseStatusException.class, () -> partidaService.listarEstadio(nomeEstadio));
     }
 
 //    TESTES DO MÉTODO listarClube(String nomeClube, boolean clubeMandante, boolean clubeVisitante)
-
     @Test
     void testListarClube_QuandoExistemPartidasPorClubeMandante() {
+        addPartidas();
         String nomeClube = "Flamengo";
         boolean clubeMandante = true;
         boolean clubeVisitante = false;
@@ -197,6 +192,7 @@ public class PartidaServiceTest {
 
     @Test
     void testListarClube_QuandoExistemPartidasPorClubeVisitante() {
+        addPartidas();
         String nomeClube = "Fluminense";
         boolean clubeMandante = false;
         boolean clubeVisitante = true;
@@ -215,6 +211,7 @@ public class PartidaServiceTest {
 
     @Test
     void testListarClube_QuandoExistemPartidasPorClube() {
+        addPartidas();
         String nomeClube = "Flamengo";
         boolean clubeMandante = true;
         boolean clubeVisitante = true;
@@ -238,18 +235,23 @@ public class PartidaServiceTest {
         boolean clubeMandante = true;
         boolean clubeVisitante = true;
 
-        when(partidaRepository.findAllByClubeMandanteEqualsIgnoreCase(nomeClube)).thenReturn(new ArrayList<>());
+        when(partidaRepository.findAllByClubeMandanteEqualsIgnoreCase(nomeClube)).thenReturn(partidas);
 
         assertThrows(ResponseStatusException.class, () -> partidaService.listarClube(nomeClube, clubeMandante, clubeVisitante));
     }
 
 //    TESTES DO MÉTODO cadastrarPartida(PartidaDto partidaDto)
-
     @Test
     void testCadastrarPartida_QuandoValidaArgumentos() {
         PartidaDto partidaDto = getPartidaDtoValida();
-        partidaService.cadastrarPartida(partidaDto);
+        PartidaDto partidaCadastrada = partidaService.cadastrarPartida(partidaDto);
 
+        assertEquals(partidaDto.getClubeMandante(), partidaCadastrada.getClubeMandante());
+        assertEquals(partidaDto.getClubeVisitante(), partidaCadastrada.getClubeVisitante());
+        assertEquals(partidaDto.getPlacarMandante(), partidaCadastrada.getPlacarMandante());
+        assertEquals(partidaDto.getPlacarVisitante(), partidaCadastrada.getPlacarVisitante());
+        assertEquals(partidaDto.getHorario(), partidaCadastrada.getHorario());
+        assertEquals(partidaDto.getNomeEstadio(), partidaCadastrada.getNomeEstadio());
         verify(partidaRepository, times(1)).save(any());
     }
 
@@ -260,11 +262,69 @@ public class PartidaServiceTest {
         assertThrows(ResponseStatusException.class, () -> partidaService.cadastrarPartida(partidaDto));
         verify(partidaRepository, never()).save(any());
     }
-//    TODO
-//    teste com estadio por dia invalido e intervalo de dias inválido.
+
+    @Test
+    void testCadastrarPartida_QuandoInvalidaEstadioPorDia() {
+        addPartidas();
+        PartidaDto partidaDto = getPartidaDtoEstadioPorDiaInvalido();
+        List<Partida> partidasPorEstadio = partidas.stream()
+                .filter(partida -> partida.getNomeEstadio().equalsIgnoreCase(partidaDto.getNomeEstadio()))
+                .toList();
+
+        when(partidaRepository.findAllByNomeEstadioEqualsIgnoreCase(partidaDto.getNomeEstadio())).thenReturn(partidasPorEstadio);
+
+        assertThrows(ResponseStatusException.class, () -> partidaService.cadastrarPartida(partidaDto));
+        verify(partidaRepository, never()).save(any());
+    }
+
+    @Test
+    void testCadastrarPartida_QuandoInvalidaIntervaloDeDiasPorClube() {
+        addPartidas();
+        PartidaDto partidaDto = getPartidaDtoIntervaloDeDiasPorClubeInvalido();
+        List<Partida> partidasDosClubes = partidas.stream()
+                .filter(partida -> partidaService.isClubeEnvolvidoNaPartida(partida, partidaDto.getClubeMandante())
+                        || partidaService.isClubeEnvolvidoNaPartida(partida, partidaDto.getClubeVisitante()))
+                .toList();
+
+        when(partidaRepository.findAll()).thenReturn(partidasDosClubes);
+
+        assertThrows(ResponseStatusException.class, () -> partidaService.cadastrarPartida(partidaDto));
+        verify(partidaRepository, never()).save(any());
+    }
+
+//    TESTES DO MÉTODO alterarPartida(Long id, PartidaDto partidaDto)
+    @Test
+    void testAlterarPartida_QuandoValidaArgumentos() {
+        addPartidas();
+        Partida partidaEsperada = partidas.get(0);
+        PartidaDto partidaDto = getPartidaDtoValida();
+
+        when(partidaRepository.findById(partidaEsperada.getId())).thenReturn(Optional.of(partidaEsperada));
+
+        PartidaDto partidaAlterada = partidaService.alterarPartida(partidaEsperada.getId(), partidaDto);
+
+        assertNotNull(partidaEsperada);
+        assertEquals(partidaDto, partidaAlterada);
+        verify(partidaRepository, times(1)).save(any());
+    }
+
+    @Test
+    void testAlterarPartida_QuandoNaoExistePartida() {
+        Long idPartidaInexistente = 50L;
+
+        when(partidaRepository.findById(idPartidaInexistente)).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> partidaService.listarPartidaPorId(idPartidaInexistente));
+    }
 
 
 //    MÉTODOS AUXILIARES
+
+    private void addPartidas() {
+        partidas.add(new Partida(1L, "Flamengo", "Fluminense", 2, 1, LocalDateTime.of(2023, 10, 12, 20, 30, 00), "Maracanã"));
+        partidas.add(new Partida(2L, "Vasco", "Botafogo", 2, 2, LocalDateTime.of(2023, 10, 12, 20, 30, 00), "São Januário"));
+        partidas.add(new Partida(3L, "Santos", "Flamengo", 0, 2, LocalDateTime.of(2023, 10, 15, 20, 30, 00), "Vila Belmiro"));
+    }
 
     private static PartidaDto getPartidaDtoValida() {
         PartidaDto partidaDto = new PartidaDto();
@@ -288,4 +348,25 @@ public class PartidaServiceTest {
         return partidaDto;
     }
 
+    private static PartidaDto getPartidaDtoEstadioPorDiaInvalido() {
+        PartidaDto partidaDto = new PartidaDto();
+        partidaDto.setClubeMandante("Barcelona");
+        partidaDto.setClubeVisitante("Real Madri");
+        partidaDto.setPlacarMandante(3);
+        partidaDto.setPlacarVisitante(3);
+        partidaDto.setHorario(LocalDateTime.of(2023, 10, 12, 19, 30, 00));
+        partidaDto.setNomeEstadio("Maracanã");
+        return partidaDto;
+    }
+
+    private static PartidaDto getPartidaDtoIntervaloDeDiasPorClubeInvalido() {
+        PartidaDto partidaDto = new PartidaDto();
+        partidaDto.setClubeMandante("Flamengo");
+        partidaDto.setClubeVisitante("Botafogo");
+        partidaDto.setPlacarMandante(3);
+        partidaDto.setPlacarVisitante(3);
+        partidaDto.setHorario(LocalDateTime.of(2023, 10, 13, 21, 30, 00));
+        partidaDto.setNomeEstadio("Maracanã");
+        return partidaDto;
+    }
 }
