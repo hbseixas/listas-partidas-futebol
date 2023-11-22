@@ -81,7 +81,7 @@ public class PartidaServiceTest {
     void testListarGoleadas_QuandoExistemGoleadas() {
         addPartidas();
         partidas.add(new Partida(4L, "Barra Mansa", "Bangu", 4, 1, LocalDateTime.of(2022, 10, 12, 20, 30, 00), "Leão do Sul"));
-        partidas.add(new Partida(5L, "Volta Redonda", "Madureira", 3, 0, LocalDateTime.of(2022, 10, 12, 20, 30, 00), "Raulino de Oliveira"));
+        partidas.add(new Partida(5L, "Volta Redonda", "Madureira", 0, 3, LocalDateTime.of(2022, 10, 12, 20, 30, 00), "Raulino de Oliveira"));
 
         when(partidaRepository.findAll()).thenReturn(partidas);
 
@@ -123,7 +123,8 @@ public class PartidaServiceTest {
         List<PartidaDto> zeroGols = partidaService.listarZeroGols();
 
         for (PartidaDto partidaDto : zeroGols){
-            assertTrue(partidaDto.getPlacarMandante() == 0 && partidaDto.getPlacarVisitante() == 0);
+            assertEquals(0, partidaDto.getPlacarMandante());
+            assertEquals(0, partidaDto.getPlacarVisitante());
         }
         assertEquals(2, zeroGols.size());
     }
@@ -149,11 +150,8 @@ public class PartidaServiceTest {
 //    TESTES DO MÉTODO listarEstadio(String nomeEstadio)
     @Test
     void testListarEstadio_QuandoExistemPartidasPorEstadio() {
-        addPartidas();
+        List<Partida> partidasPorEstadio = List.of(new Partida(1L, "Flamengo", "Fluminense", 2, 1, LocalDateTime.of(2023, 10, 12, 20, 30, 00), "Maracanã"));
         String nomeEstadio = "Maracanã";
-        List<Partida> partidasPorEstadio = partidas.stream()
-                .filter(partida -> partida.getNomeEstadio().equalsIgnoreCase(nomeEstadio))
-                .toList();
 
         when(partidaRepository.findAllByNomeEstadioEqualsIgnoreCase(nomeEstadio)).thenReturn(partidasPorEstadio);
 
@@ -175,13 +173,10 @@ public class PartidaServiceTest {
 //    TESTES DO MÉTODO listarClube(String nomeClube, boolean clubeMandante, boolean clubeVisitante)
     @Test
     void testListarClube_QuandoExistemPartidasPorClubeMandante() {
-        addPartidas();
+        List<Partida> partidasPorClubeMandante = List.of(new Partida(1L, "Flamengo", "Fluminense", 2, 1, LocalDateTime.of(2023, 10, 12, 20, 30, 00), "Maracanã"));
         String nomeClube = "Flamengo";
         boolean clubeMandante = true;
         boolean clubeVisitante = false;
-        List<Partida> partidasPorClubeMandante = partidas.stream()
-                .filter(partida -> partida.getClubeMandante().equalsIgnoreCase(nomeClube))
-                .toList();
 
         when(partidaRepository.findAllByClubeMandanteEqualsIgnoreCase(nomeClube)).thenReturn(partidasPorClubeMandante);
 
@@ -193,13 +188,10 @@ public class PartidaServiceTest {
 
     @Test
     void testListarClube_QuandoExistemPartidasPorClubeVisitante() {
-        addPartidas();
+        List<Partida> partidasPorClubeVisitante = List.of(new Partida(1L, "Flamengo", "Fluminense", 2, 1, LocalDateTime.of(2023, 10, 12, 20, 30, 00), "Maracanã"));
         String nomeClube = "Fluminense";
         boolean clubeMandante = false;
         boolean clubeVisitante = true;
-        List<Partida> partidasPorClubeVisitante = partidas.stream()
-                .filter(partida -> partida.getClubeVisitante().equalsIgnoreCase(nomeClube))
-                .toList();
 
         when(partidaRepository.findAllByClubeVisitanteEqualsIgnoreCase(nomeClube)).thenReturn(partidasPorClubeVisitante);
 
@@ -211,14 +203,12 @@ public class PartidaServiceTest {
 
     @Test
     void testListarClube_QuandoExistemPartidasPorClube() {
-        addPartidas();
+        List<Partida> partidasPorClube = List.of(
+                new Partida(1L, "Flamengo", "Fluminense", 2, 1, LocalDateTime.of(2023, 10, 12, 20, 30, 00), "Maracanã"),
+                new Partida(3L, "Santos", "Flamengo", 0, 2, LocalDateTime.of(2023, 10, 15, 20, 30, 00), "Vila Belmiro"));
         String nomeClube = "Flamengo";
         boolean clubeMandante = true;
         boolean clubeVisitante = true;
-        List<Partida> partidasPorClube = partidas.stream()
-                .filter(partida -> partida.getClubeMandante().equalsIgnoreCase(nomeClube)
-                        || partida.getClubeVisitante().equalsIgnoreCase(nomeClube))
-                .toList();
 
         when(partidaRepository.findAllByClubeMandanteEqualsIgnoreCase(nomeClube)).thenReturn(partidasPorClube);
 
@@ -259,11 +249,8 @@ public class PartidaServiceTest {
 
     @Test
     void testCadastrarPartida_QuandoInvalidaEstadioPorDia() {
-        addPartidas();
+        List<Partida> partidasPorEstadio = List.of(new Partida(1L, "Flamengo", "Fluminense", 2, 1, LocalDateTime.of(2023, 10, 12, 20, 30, 00), "Maracanã"));
         PartidaDto partidaDto = getPartidaDtoEstadioPorDiaInvalido();
-        List<Partida> partidasPorEstadio = partidas.stream()
-                .filter(partida -> partida.getNomeEstadio().equalsIgnoreCase(partidaDto.getNomeEstadio()))
-                .toList();
 
         when(partidaRepository.findAllByNomeEstadioEqualsIgnoreCase(partidaDto.getNomeEstadio())).thenReturn(partidasPorEstadio);
 
@@ -273,12 +260,10 @@ public class PartidaServiceTest {
 
     @Test
     void testCadastrarPartida_QuandoInvalidaIntervaloDeDiasPorClube() {
-        addPartidas();
+        List<Partida> partidasDosClubes = List.of(
+                new Partida(1L, "Flamengo", "Fluminense", 2, 1, LocalDateTime.of(2023, 10, 12, 20, 30, 00), "Maracanã"),
+                new Partida(3L, "Santos", "Flamengo", 0, 2, LocalDateTime.of(2023, 10, 15, 20, 30, 00), "Vila Belmiro"));
         PartidaDto partidaDto = getPartidaDtoIntervaloDeDiasPorClubeInvalido();
-        List<Partida> partidasDosClubes = partidas.stream()
-                .filter(partida -> partidaService.isClubeEnvolvidoNaPartida(partida, partidaDto.getClubeMandante())
-                        || partidaService.isClubeEnvolvidoNaPartida(partida, partidaDto.getClubeVisitante()))
-                .toList();
 
         when(partidaRepository.findAll()).thenReturn(partidasDosClubes);
 
@@ -317,12 +302,9 @@ public class PartidaServiceTest {
 
     @Test
     void testAlterarPartida_QuandoInvalidaEstadioPorDia() {
-        addPartidas();
-        Partida partidaEsperada = partidas.get(0);
+        List<Partida> partidasPorEstadio = List.of(new Partida(1L, "Flamengo", "Fluminense", 2, 1, LocalDateTime.of(2023, 10, 12, 20, 30, 00), "Maracanã"));
+        Partida partidaEsperada = partidasPorEstadio.get(0);
         PartidaDto partidaDto = getPartidaDtoEstadioPorDiaInvalido();
-        List<Partida> partidasPorEstadio = partidas.stream()
-                .filter(partida -> partida.getNomeEstadio().equalsIgnoreCase(partidaDto.getNomeEstadio()))
-                .toList();
 
         when(partidaRepository.findById(partidaEsperada.getId())).thenReturn(Optional.of(partidaEsperada));
         when(partidaRepository.findAllByNomeEstadioEqualsIgnoreCase(partidaDto.getNomeEstadio())).thenReturn(partidasPorEstadio);
@@ -334,13 +316,11 @@ public class PartidaServiceTest {
 
     @Test
     void testAlterarPartida_QuandoInvalidaIntervaloDeDiasPorClube() {
-        addPartidas();
-        Partida partidaEsperada = partidas.get(0);
+        List<Partida> partidasDosClubes = List.of(
+                new Partida(1L, "Flamengo", "Fluminense", 2, 1, LocalDateTime.of(2023, 10, 12, 20, 30, 00), "Maracanã"),
+                new Partida(3L, "Santos", "Flamengo", 0, 2, LocalDateTime.of(2023, 10, 15, 20, 30, 00), "Vila Belmiro"));
+        Partida partidaEsperada = partidasDosClubes.get(0);
         PartidaDto partidaDto = getPartidaDtoIntervaloDeDiasPorClubeInvalido();
-        List<Partida> partidasDosClubes = partidas.stream()
-                .filter(partida -> partidaService.isClubeEnvolvidoNaPartida(partida, partidaDto.getClubeMandante())
-                        || partidaService.isClubeEnvolvidoNaPartida(partida, partidaDto.getClubeVisitante()))
-                .toList();
 
         when(partidaRepository.findById(partidaEsperada.getId())).thenReturn(Optional.of(partidaEsperada));
         when(partidaRepository.findAll()).thenReturn(partidasDosClubes);
@@ -423,8 +403,8 @@ public class PartidaServiceTest {
 
     private static PartidaDto getPartidaDtoIntervaloDeDiasPorClubeInvalido() {
         PartidaDto partidaDto = new PartidaDto();
-        partidaDto.setClubeMandante("Flamengo");
-        partidaDto.setClubeVisitante("Botafogo");
+        partidaDto.setClubeMandante("Botafogo");
+        partidaDto.setClubeVisitante("Flamengo");
         partidaDto.setPlacarMandante(3);
         partidaDto.setPlacarVisitante(3);
         partidaDto.setHorario(LocalDateTime.of(2023, 10, 13, 21, 30, 00));
