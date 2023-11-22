@@ -311,10 +311,11 @@ public class PartidaServiceTest {
     @Test
     void testAlterarPartida_QuandoNaoExistePartida() {
         Long idPartidaInexistente = 50L;
+        PartidaDto partidaDto = getPartidaDtoValida();
 
         when(partidaRepository.findById(idPartidaInexistente)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> partidaService.listarPartidaPorId(idPartidaInexistente));
+        assertThrows(ResponseStatusException.class, () -> partidaService.alterarPartida(idPartidaInexistente, partidaDto));
     }
 
 
