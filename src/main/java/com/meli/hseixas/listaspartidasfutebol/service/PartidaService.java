@@ -201,7 +201,7 @@ public class PartidaService {
         return partidasDosClubes;
     }
 
-    public boolean isClubeEnvolvidoNaPartida(Partida partida, String clube){
+    private boolean isClubeEnvolvidoNaPartida(Partida partida, String clube){
         return partida.getClubeMandante().equalsIgnoreCase(clube) ||
                 partida.getClubeVisitante().equalsIgnoreCase(clube);
     }
